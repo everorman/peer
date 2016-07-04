@@ -624,17 +624,12 @@ Negotiator._makeOffer = function(connection) {
   var pc = connection.pc;
   var isFirefox = typeof InstallTrigger !== 'undefined';
   if(isFirefox)  {
-    console.log('Creating offer to firefox')
-     pc.createOffer().then(function(offer) {
-      return pc.setLocalDescription(offer);
-    })
-    .then(function() {
-      /*sendToServer({
-        name: myUsername,
-        target: targetUsername,
-        type: "video-offer",
-        sdp: myPeerConnection.localDescription
-      });*/
+    pc.createOffer().then(function(offer) {
+      util.log('Created offer.');
+
+      if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
+        offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
+      }
       pc.setLocalDescription(offer, function() {
         util.log('Set localDescription: offer', 'for:', connection.peer);
         connection.provider.socket.send({
@@ -655,9 +650,9 @@ Negotiator._makeOffer = function(connection) {
         connection.provider.emitError('webrtc', err);
         util.log('Failed to setLocalDescription, ', err);
       });
-    })
-    .catch(function(reason) {
-      // An error occurred, so handle the failure to connect
+    }).catch(function(err) {
+      connection.provider.emitError('webrtc', err);
+      util.log('Failed to createOffer, ', err);
     });
   }else{
       pc.createOffer(function(offer) {
