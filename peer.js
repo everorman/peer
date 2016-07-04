@@ -657,7 +657,13 @@ Negotiator._makeOffer = function(connection) {
 
 Negotiator._makeAnswer = function(connection) {
   var pc = connection.pc;
-
+  var options = null;
+  var isFirefox = typeof InstallTrigger !== 'undefined';
+  if(isFirefox)  {
+    options = { offerToReceiveAudio: true, offerToReceiveVideo: true }
+  }else{
+    options = { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } }
+  }
   pc.createAnswer(function(answer) {
     util.log('Created answer.');
 
@@ -684,7 +690,7 @@ Negotiator._makeAnswer = function(connection) {
   }, function(err) {
     connection.provider.emitError('webrtc', err);
     util.log('Failed to create answer, ', err);
-  });
+  },options);
 }
 
 /** Handle an SDP. */
