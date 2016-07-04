@@ -622,37 +622,65 @@ Negotiator.cleanup = function(connection) {
 
 Negotiator._makeOffer = function(connection) {
   var pc = connection.pc;
-  pc.createOffer(function(offer) {
-    util.log('Created offer.');
+  var isFirefox = typeof InstallTrigger !== 'undefined';
+  if(isFirefox)  {
+    pc.createOffer().then(function(offer) {
+      return pc.setLocalDescription(offer);
+    })
+    .then(function() {
+       connection.provider.socket.send({
+          type: 'OFFER',
+          payload: {
+            sdp: offer,
+            type: connection.type,
+            label: connection.label,
+            connectionId: connection.id,
+            reliable: connection.reliable,
+            serialization: connection.serialization,
+            metadata: connection.metadata,
+            browser: util.browser
+          },
+          dst: connection.peer
+        });
+    })
+    .catch(function(err){
+      connection.provider.emitError('webrtc', err);
+      util.log('Failed to createOffer, ', err);
+    });
+  }else{
+      pc.createOffer(function(offer) {
+      util.log('Created offer.');
 
-    if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
-      offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
-    }
+      if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
+        offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
+      }
 
-    pc.setLocalDescription(offer, function() {
-      util.log('Set localDescription: offer', 'for:', connection.peer);
-      connection.provider.socket.send({
-        type: 'OFFER',
-        payload: {
-          sdp: offer,
-          type: connection.type,
-          label: connection.label,
-          connectionId: connection.id,
-          reliable: connection.reliable,
-          serialization: connection.serialization,
-          metadata: connection.metadata,
-          browser: util.browser
-        },
-        dst: connection.peer
+      pc.setLocalDescription(offer, function() {
+        util.log('Set localDescription: offer', 'for:', connection.peer);
+        connection.provider.socket.send({
+          type: 'OFFER',
+          payload: {
+            sdp: offer,
+            type: connection.type,
+            label: connection.label,
+            connectionId: connection.id,
+            reliable: connection.reliable,
+            serialization: connection.serialization,
+            metadata: connection.metadata,
+            browser: util.browser
+          },
+          dst: connection.peer
+        });
+      }, function(err) {
+        connection.provider.emitError('webrtc', err);
+        util.log('Failed to setLocalDescription, ', err);
       });
     }, function(err) {
       connection.provider.emitError('webrtc', err);
-      util.log('Failed to setLocalDescription, ', err);
-    });
-  }, function(err) {
-    connection.provider.emitError('webrtc', err);
-    util.log('Failed to createOffer, ', err);
-  }, {offerToReceiveAudio: true,offerToReceiveVideo: true});
+      util.log('Failed to createOffer, ', err);
+    }, {offerToReceiveAudio: true,offerToReceiveVideo: true});
+  }
+
 }
 
 Negotiator._makeAnswer = function(connection) {
