@@ -652,7 +652,7 @@ Negotiator._makeOffer = function(connection) {
   }, function(err) {
     connection.provider.emitError('webrtc', err);
     util.log('Failed to createOffer, ', err);
-  }, connection.options.constraints);
+  }, {offerToReceiveAudio: true,offerToReceiveVideo: true});
 }
 
 Negotiator._makeAnswer = function(connection) {
