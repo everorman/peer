@@ -626,6 +626,9 @@ Negotiator._makeOffer = function(connection) {
   if(isFirefox)  {
     pc.createOffer()
     .then(function(offer) {
+      if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
+        offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
+      }
       pc.setLocalDescription(offer);
     })
     .then(function() {
