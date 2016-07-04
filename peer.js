@@ -624,8 +624,9 @@ Negotiator._makeOffer = function(connection) {
   var pc = connection.pc;
   var isFirefox = typeof InstallTrigger !== 'undefined';
   if(isFirefox)  {
-    pc.createOffer().then(function(offer) {
-    return pc.setLocalDescription(offer);
+    pc.createOffer()
+    .then(function(offer) {
+      pc.setLocalDescription(offer);
     })
     .then(function() {
        connection.provider.socket.send({
