@@ -630,9 +630,7 @@ Negotiator._makeOffer = function(connection) {
         offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
       }
       pc.setLocalDescription(offer);
-    })
-    .then(function() {
-       connection.provider.socket.send({
+      connection.provider.socket.send({
           type: 'OFFER',
           payload: {
             sdp: offer,
