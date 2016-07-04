@@ -629,8 +629,8 @@ Negotiator._makeOffer = function(connection) {
       if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
         offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
       }
-      pc.setLocalDescription(offer);
-      connection.provider.socket.send({
+      pc.setLocalDescription(offer).then(function(){
+        connection.provider.socket.send({
           type: 'OFFER',
           payload: {
             sdp: offer,
@@ -644,6 +644,9 @@ Negotiator._makeOffer = function(connection) {
           },
           dst: connection.peer
         });
+      });
+      
+      
     })
     .catch(function(err){
       connection.provider.emitError('webrtc', err);
