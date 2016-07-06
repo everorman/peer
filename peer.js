@@ -622,9 +622,13 @@ Negotiator.cleanup = function(connection) {
 
 Negotiator._makeOffer = function(connection) {
   var pc = connection.pc;
+  var offerOptions = {
+    offerToReceiveAudio: 1,
+    offerToReceiveVideo: 1
+  };
   var isFirefox = typeof InstallTrigger !== 'undefined';
   if(isFirefox)  {
-    pc.createOffer()
+    pc.createOffer(offerOptions)
     .then(function(offer) {
       if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
         offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
