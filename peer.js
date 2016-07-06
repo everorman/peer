@@ -630,9 +630,9 @@ Negotiator._makeOffer = function(connection) {
   if(isFirefox)  {
     pc.createOffer(offerOptions)
     .then(function(offer) {
-      if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
+/*      if (!util.supports.sctp && connection.type === 'data' && connection.reliable) {
         offer.sdp = Reliable.higherBandwidthSDP(offer.sdp);
-      }
+      }*/
       pc.setLocalDescription(offer).then(function(){
         connection.provider.socket.send({
           type: 'OFFER',
@@ -697,7 +697,8 @@ Negotiator._makeAnswer = function(connection) {
   var options = null;
   var isFirefox = typeof InstallTrigger !== 'undefined';
   if(isFirefox)  {
-    options = { offerToReceiveAudio: true, offerToReceiveVideo: true }
+    console.log("_makeAnswer")
+    options = { offerToReceiveAudio: 1, offerToReceiveVideo: 1 }
   }else{
     options = { mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true } }
   }
