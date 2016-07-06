@@ -1475,7 +1475,7 @@ module.exports = Socket;
 },{"./util":8,"eventemitter3":9}],8:[function(require,module,exports){
 var isFirefox = typeof InstallTrigger !== 'undefined';
 if(isFirefox)  {
-  defaultConfig = {'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }]};
+  defaultConfig = {'iceServers': [{'url': 'stun:stun.services.mozilla.com'},{ 'urls': 'stun:stun.l.google.com:19302' }]};
 }else{
   defaultConfig = {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
 }
